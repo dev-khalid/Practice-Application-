@@ -1,0 +1,6 @@
+1.sequelize init - initialize some useful  directory 
+2.sequelize db:create - creates the database written in config.json file . 
+3.sequelize model:create --name ModelName --attributes field:type,field:type
+
+
+ami sync er issue ta test korbo . surely . user er moddhe ekta notun field add kore dekha jete pare and sathe sync er option a alter: true kore . 
