@@ -1,9 +1,19 @@
 const express = require('express');
 const { sequelize, User, Post } = require('./models/index');
+const requestIp = require('request-ip');
+const webpush = require('web-push');
+const cors = require('cors');
+
 const app = express();
 app.use(express.json());
+app.use(requestIp.mw());
+app.use(cors());
 
 app.get('/', (req, res) => {
+  const clientIp = requestIp.getClientIp(req);
+  const ip = req.clientIp;
+
+  console.log(clientIp, ip);
   res.send('Hello from server side.');
 });
 app.post('/users', async (req, res) => {
@@ -81,6 +91,46 @@ app.get('/posts', async (req, res) => {
   }
 });
 
+const publicVapidKey =
+  'BCw9DyYE6hfa2rWNxwjxJbN_CcMniLbmIbpFs3lZNkCHYxJ9-n7F3FJPUHLmGCqtj0RG9Yroajg1weEyT-O6Wg4';
+const privateVapidKey = '7OVsOID2th1_sZBUk6PAMeTGfJLYlxoXkOxhpaO4c_M';
+webpush.setVapidDetails(
+  'mailto:test@test.com',
+  publicVapidKey,
+  privateVapidKey
+);
+
+// Subscribe Route
+app.post('/subscribe', (req, res, next) => {
+  // Get pushSubscription object
+
+  const x = req.body;
+  const { subscription } = x;
+
+  console.log(subscription);
+  console.log(x.payload);
+  // const payload = JSON.stringify({ title: 'khalid testing' });
+  // Send 201 - resource created
+  res.status(201).json({});
+  // const payload = JSON.stringify({ title: 'Push Test' });
+
+  // Pass object into sendNotification
+  const payload = JSON.stringify(x.payload);
+  webpush
+    .sendNotification(subscription, payload)
+    .catch((err) => console.error(err));
+});
+
+app.get('/notify', (req, res) => {
+  console.log(req.subscription);
+  // Create payload
+  const payload = JSON.stringify({ title: 'Push Test' });
+
+  // Pass object into sendNotification
+  webpush
+    .sendNotification(subscription, payload)
+    .catch((err) => console.error(err));
+});
 app.listen({ port: 5000 }, async () => {
   console.log('Server is running on port 5000');
   await sequelize.authenticate();
